@@ -1,6 +1,6 @@
 {
   "name": "@elumixor/event-emitter",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Minimal event emitter",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,7 +15,7 @@
   "scripts": {
     "build": "bun run build:clean && bun run build:bundle && bun run build:declaration",
     "build:clean": "rm -rf ./dist",
-    "build:bundle": "bun build ./src/index.ts --outdir ./dist --minify --target",
+    "build:bundle": "bun build ./src/index.ts --outdir ./dist --minify",
     "build:declaration": "tsc --project tsconfig.build.json",
     "check": "tsc --noEmit && bun run lint && biome format .",
     "lint": "biome check . --fix",
