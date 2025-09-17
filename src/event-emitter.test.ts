@@ -179,6 +179,36 @@ describe("EventEmitter", () => {
 
     expect(called).toBe(true);
   });
+
+  test("should not call unsubscribed callbacks during emit", () => {
+    let callCount1 = 0;
+    let callCount2 = 0;
+    let callCount3 = 0;
+
+    const callback1 = () => {
+      callCount1++;
+    };
+
+    const callback2 = () => {
+      callCount2++;
+      // Unsubscribe callback3 during emit
+      subscription3.unsubscribe();
+    };
+
+    const callback3 = () => {
+      callCount3++;
+    };
+
+    emitter.subscribe(callback1);
+    emitter.subscribe(callback2);
+    const subscription3 = emitter.subscribe(callback3);
+
+    emitter.emit("test event");
+
+    expect(callCount1).toBe(1);
+    expect(callCount2).toBe(1);
+    expect(callCount3).toBe(0); // callback3 should not be called since it was unsubscribed by callback2
+  });
 });
 
 describe("AsyncEventEmitter", () => {

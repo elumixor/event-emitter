@@ -42,7 +42,10 @@ export class EventEmitter<TEventData = void> {
     // Some subscribers may want to unsubscribe after the event
     // This leads to modification of `this.callbacks`
     // To avoid problems, we should iterate on the copy
-    for (const callback of [...this.callbacks]) void callback(eventData);
+    for (const callback of [...this.callbacks]) {
+      // Check if callback is still subscribed
+      if (this.callbacks.includes(callback)) void callback(eventData);
+    }
   }
 
   /** Unsubscribes the callback from the event. */
