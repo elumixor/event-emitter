@@ -180,6 +180,33 @@ describe("EventEmitter", () => {
     expect(called).toBe(true);
   });
 
+  test("should handle subscribeImmediate with void event data when not emitted", () => {
+    const voidEmitter = new EventEmitter<void>();
+    let called = false;
+
+    voidEmitter.subscribeImmediate(() => {
+      called = true;
+    });
+
+    expect(called).toBe(false);
+
+    voidEmitter.emit();
+    expect(called).toBe(true);
+  });
+
+  test("should handle subscribeImmediate with void event data when already emitted", () => {
+    const voidEmitter = new EventEmitter<void>();
+    let called = false;
+
+    voidEmitter.emit();
+
+    voidEmitter.subscribeImmediate(() => {
+      called = true;
+    });
+
+    expect(called).toBe(true);
+  });
+
   test("should not call unsubscribed callbacks during emit", () => {
     let callCount1 = 0;
     let callCount2 = 0;

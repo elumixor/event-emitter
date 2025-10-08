@@ -5,6 +5,7 @@ export type Awaitable<T = void> = PromiseLike<T> | T;
 export class EventEmitter<TEventData = void> {
   protected readonly callbacks = [] as EventHandler<TEventData>[];
   private _value?: TEventData;
+  private _emitted = false;
   readonly first = this.nextEvent.then((value) => {
     this._value = value;
   });
@@ -31,12 +32,13 @@ export class EventEmitter<TEventData = void> {
   /** Subscribes the callback to the event and immediately calls it if the event was already emitted. */
   subscribeImmediate(callback: EventHandler<TEventData>): ISubscription<TEventData> {
     const subscription = this.subscribe(callback);
-    if (this._value !== undefined) void callback(this._value);
+    if (this._emitted) void callback(this._value as TEventData);
     return subscription;
   }
 
   /** Emits the event. */
   emit(eventData: TEventData) {
+    this._emitted = true;
     this._value = eventData;
 
     // Some subscribers may want to unsubscribe after the event
