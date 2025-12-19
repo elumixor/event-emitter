@@ -1,6 +1,10 @@
-name: Build & Deploy
+name: Node.js CI
 
 on: [push]
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
 
 jobs:
   build:
@@ -13,6 +17,7 @@ jobs:
       - run: bun run build
 
   test:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -22,16 +27,17 @@ jobs:
       - run: bun test
 
   lint:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
       - run: bun install
-      - run: bun run check
+      - run: bun lint
 
   publish:
-    needs: [build, test]
+    needs: [build, test, lint]
     runs-on: ubuntu-latest
 
     # Run on any tag
@@ -41,7 +47,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
       - name: Check if version has been updated
@@ -56,8 +62,6 @@ jobs:
 
       - run: npm publish --access public
         if: steps.check.outputs.changed == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - run: 'echo "Package version has not been updated, skipping publish"'
         if: steps.check.outputs.changed == 'false'
